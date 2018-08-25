@@ -4,9 +4,12 @@ import requests, json, time, pandas as pd
 key = '0166716913bb82626c0e18402c46df62'
 username = 'sam_sims'
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
-limit = 10  # Number of records per call (200 is max)
+limit = 200  # Number of records per call (200 is max)
 extended = 0  # api lets you retrieve extended data for each track, 0=no, 1=yes
 page = 1  # page of results to start retrieving at
+
+# Scraper Settings
+mode = 'q'  # mode = q then run search query; mode = s then run specifc query (doesnt find genre sometimes)
 last_fm_tag_data = 0  # 0 = use discogs genre; 1 = use lastFM tags
 
 # Global API params (discogs)
@@ -55,7 +58,6 @@ def get_tracks_genre_lastfm():
 
 
 def get_tracks_genre_discog():
-    mode = 'q'  # mode = q then run search query; mode = s then run specifc query (doesnt find genre sometimes)
     if mode == 'q':
         local_top_tracks = get_top_tracks()
         discogs_url_to_format = 'https://api.discogs.com/database/search?q={}&per_page=5&page=1&key={}&secret={}'
@@ -64,15 +66,20 @@ def get_tracks_genre_discog():
             artist = row['artist']
             track = row['track']
             search = artist + ' ' + track
-            print(search)
             request_url = discogs_url_to_format.format(search, key_discogs, secret_key_discogs)
             response = requests.get(request_url).json()
-            print('Processing tag data: ', artist, ' - ', track)
+            time.sleep(1)
+            print('Processing genre data: ', artist, ' - ', track)
 
             genres_temp = []
-            for item in response['results']:
-                genres_temp.append(item['style'])
-            genres.append(genres_temp[:1])
+            try:
+                for item in response['results']:
+                    genres_temp.append(item['style'])
+                genres.append(genres_temp[:1])
+            except Exception as e:
+                print(e)
+                genres.append("Error")
+                pass
         local_top_tracks['Genre'] = genres
         return local_top_tracks
     elif mode == 's':
@@ -84,7 +91,7 @@ def get_tracks_genre_discog():
             track = row['track']
             request_url = discogs_url_to_format.format(track, artist, key_discogs, secret_key_discogs)
             response = requests.get(request_url).json()
-            print('Processing tag data: ', artist, ' - ', track)
+            print('Processing genre data: ', artist, ' - ', track)
             genres_temp = []
             for item in response['results']:
                 genres_temp.append(item['style'])
