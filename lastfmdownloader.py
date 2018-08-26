@@ -11,6 +11,7 @@ page = 1  # page of results to start retrieving at
 # Scraper Settings
 mode = 'q'  # mode = q then run search query; mode = s then run specifc query (doesnt find genre sometimes)
 last_fm_tag_data = 0  # 0 = use discogs genre; 1 = use lastFM tags
+genre_data = 0
 
 # Global API params (discogs)
 key_discogs = 'EikgARuUWOIlzrvqOVDI'
@@ -102,13 +103,34 @@ def get_tracks_genre_discog():
         print("Error")
 
 
+def get_top_artists():
+    method = 'topartists'
+    request_url = url_to_format.format(method, username, key, limit, extended, page)
+    artist_names = []
+    play_counts = []
+    response = requests.get(request_url).json()
+    for item in response[method]['artist']:
+        artist_names.append(item['name'])
+        play_counts.append(item['playcount'])
+
+    top_tracks = pd.DataFrame()
+    top_tracks['artist'] = artist_names
+    top_tracks['play_count'] = play_counts
+    return top_tracks
+
 def output_data():
-    if last_fm_tag_data == 0:
-        get_tracks_genre_discog().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
-    elif last_fm_tag_data == 1:
-        get_tracks_genre_lastfm().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
+    if genre_data:
+        if last_fm_tag_data == 0:
+            get_tracks_genre_discog().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
+        elif last_fm_tag_data == 1:
+            get_tracks_genre_lastfm().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
+        else:
+            print("Set last_fm_tag_data to a value")
+    elif genre_data == False:
+        get_top_tracks().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
+        get_top_artists().to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
     else:
-        print("Set last_fm_tag_data to a value")
+        print('CSV not saved')
 
 
 def main():
