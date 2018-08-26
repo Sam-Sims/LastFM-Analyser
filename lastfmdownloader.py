@@ -142,6 +142,39 @@ def get_top_albums(username, key, limit, extended, page):
     return top_albums
 
 
+def get_all_scrobbles(username, key, limit, extended, page):
+    method = 'recenttracks'
+    request_url = url_to_format.format(method, username, key, limit, extended, page)
+    response = requests.get(request_url).json()
+    total_pages = response[method]['@attr']['totalPages']
+    print(total_pages, ' number of pages found!')
+    big_response = []
+    for page_num in range(1, int(total_pages) + 1):  # int(total_pages)
+        print('Processing page: ', int(page_num))
+        request_url = url_to_format.format(method, username, key, limit, extended, page_num)
+        big_response.append(requests.get(request_url).json())
+    artist_name = []
+    track_name = []
+    album_name = []
+    date_uts = []
+    date_text = []
+    for responses in big_response:
+        for scrobble in responses[method]['track']:
+            if 'date' in scrobble.keys():
+                artist_name.append(scrobble['artist']['#text'])
+                track_name.append(scrobble['name'])
+                album_name.append(scrobble['album']['#text'])
+                date_uts.append(scrobble['date']['uts'])
+                date_text.append(scrobble['date']['#text'])
+    scrobble_data = pd.DataFrame()
+    scrobble_data['track'] = track_name
+    scrobble_data['album'] = album_name
+    scrobble_data['artist'] = artist_name
+    scrobble_data['uts_timestamp'] = date_uts
+    scrobble_data['text_timestamp'] = date_text
+    return scrobble_data
+
+
 def output_data(config):
     if config.scrape_genre_data == '1':
         if config.use_lastfm_tags == '0':
@@ -154,11 +187,12 @@ def output_data(config):
         get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
     get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
     get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_albums.csv', index=None, encoding='utf-8')
-
+    get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
 
 def main():
     config = Config()
     output_data(config)
+
 
 
 if __name__ == "__main__":
