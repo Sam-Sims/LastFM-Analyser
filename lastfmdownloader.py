@@ -29,7 +29,6 @@ def get_top_tracks():
         artist_names.append(item['artist']['name'])
         track_names.append(item['name'])
         play_counts.append(item['playcount'])
-
     top_tracks = pd.DataFrame()
     top_tracks['artist'] = artist_names
     top_tracks['track'] = track_names
@@ -112,11 +111,28 @@ def get_top_artists():
     for item in response[method]['artist']:
         artist_names.append(item['name'])
         play_counts.append(item['playcount'])
+    top_artists = pd.DataFrame()
+    top_artists['artist'] = artist_names
+    top_artists['play_count'] = play_counts
+    return top_artists
 
-    top_tracks = pd.DataFrame()
-    top_tracks['artist'] = artist_names
-    top_tracks['play_count'] = play_counts
-    return top_tracks
+def get_top_albums():
+    method = 'topalbums'
+    request_url = url_to_format.format(method, username, key, limit, extended, page)
+    album_names = []
+    play_counts = []
+    artist_name = []
+    response = requests.get(request_url).json()
+    for item in response[method]['album']:
+        album_names.append(item['name'])
+        artist_name.append(item['artist']['name'])
+        play_counts.append(item['playcount'])
+    top_albums = pd.DataFrame()
+    top_albums['albums'] = album_names
+    top_albums['artist'] = artist_name
+    top_albums['playcount'] = play_counts
+    return top_albums
+
 
 def output_data():
     if genre_data:
@@ -128,14 +144,12 @@ def output_data():
             print("Set last_fm_tag_data to a value")
     elif genre_data == False:
         get_top_tracks().to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
-        get_top_artists().to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
-    else:
-        print('CSV not saved')
+    get_top_artists().to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
+    get_top_albums().to_csv('data/lastfm_top_albums.csv', index=None, encoding='utf-8')
 
 
 def main():
     output_data()
-
 
 if __name__ == "__main__":
     main()
