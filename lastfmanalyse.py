@@ -28,9 +28,36 @@ def analyse_top_artists(graph_settings):
     plt.show()
 
 
+def make_label(row, maxlength=30, suffix='...'):
+    artist = row['artist']
+    track = row['track']
+    if len(track) > maxlength:
+        track = '{}{}'.format(track[:maxlength-len(suffix)], suffix)
+    return '{}\n{}'.format(artist, track)
+
+def analyse_top_tracks(graph_settings):
+    top_tracks = pd.read_csv('data/lastfm_top_tracks.csv', encoding='utf-8')
+
+    index = top_tracks.apply(make_label, axis='columns')
+    tracks_most = top_tracks.set_index(index).drop(labels=['artist', 'track'], axis='columns')
+    tracks_most = tracks_most['play_count'].head(20)
+    tracks_most.head()
+    print(tracks_most)
+
+    ax = tracks_most.sort_values().plot(kind='barh', figsize=[6, 10], width=0.8, alpha=0.6, color='#ce6c31', edgecolor=None, zorder=2)
+    ax.xaxis.grid(True)
+    ax.set_title('Top tracks', fontproperties=graph_settings.title_font)
+    ax.set_xlabel('', fontproperties=graph_settings.label_font)
+    ax.set_ylabel('Track', fontproperties=graph_settings.label_font)
+    ax.set_xlabel('Playcount', fontproperties=graph_settings.label_font)
+    plt.savefig('images/lastfm-tracks-played-most.png', bbox_inches='tight', dpi=100)
+    plt.show()
+
+
 def main():
     graph_settings = GraphSettings()
-    analyse_top_artists(graph_settings)
+    #analyse_top_artists(graph_settings)
+    analyse_top_tracks(graph_settings)
 
 
 if __name__ == "__main__":
