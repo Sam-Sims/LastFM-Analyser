@@ -10,6 +10,7 @@ class Config:
     def __init__(self):
         config = ConfigParser()
         config.read('config.ini')
+        print('Config Loaded!')
         #  LastFM config
         self.last_fm_api_key = config.get('LASTFM_API_CONFIGURATION', 'api_key')
         self.last_fm_username = config.get('LASTFM_API_CONFIGURATION', 'username')
@@ -29,6 +30,7 @@ class Config:
 
 
 def get_top_tracks(username, api_key, limit, extended, page):
+    print('Retrieving top tracks...')
     method = 'toptracks'
     request_url = url_to_format.format(method, username, api_key, limit, extended, page)
     artist_names = []
@@ -43,11 +45,13 @@ def get_top_tracks(username, api_key, limit, extended, page):
     top_tracks['artist'] = artist_names
     top_tracks['track'] = track_names
     top_tracks['play_count'] = play_counts
+    print('Done!')
     return top_tracks
 
 
 #  This is only run if last_fm_tag_data is set to 1 - time consuming, discog API is prefered
 def get_tracks_genre_lastfm(_top_tracks, api_key):
+    print('Using lastFM tag data')
     tag_url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=track.get{}&artist={}&track={}&autocorrect={}&api_key={}&format=json'
     method = 'info'
     autocorrect = '1'  # Transform misspelled artist and track names into correct artist and track names
@@ -63,10 +67,12 @@ def get_tracks_genre_lastfm(_top_tracks, api_key):
             tags.append(item['name'])
         tags_spliced.append(tags[:3])
     _top_tracks['Tags'] = tags_spliced
+    print('Done!')
     return _top_tracks
 
 
 def get_tracks_genre_discog(_top_tracks, discog_scape_mode, key_discog, secret_key_discog, wait_time):
+    print('Using discogs genre data')
     if discog_scape_mode == 'q':
         discogs_url_to_format = 'https://api.discogs.com/database/search?q={}&per_page=5&page=1&key={}&secret={}'
         genres = []
@@ -96,7 +102,7 @@ def get_tracks_genre_discog(_top_tracks, discog_scape_mode, key_discog, secret_k
         for index, row in _top_tracks.iterrows():
             artist = row['artist']
             track = row['track']
-            request_url = discogs_url_to_format.format(track, artist, key_discogs, secret_key_discogs)
+            request_url = discogs_url_to_format.format(track, artist, key_discog, secret_key_discog)
             response = requests.get(request_url).json()
             print('Processing genre data: ', artist, ' - ', track)
             genres_temp = []
@@ -104,12 +110,14 @@ def get_tracks_genre_discog(_top_tracks, discog_scape_mode, key_discog, secret_k
                 genres_temp.append(item['style'])
             genres.append(genres_temp[:1])
         _top_tracks['Genre'] = genres
+        print('Done!')
         return _top_tracks
     else:
         print("Error")
 
 
 def get_top_artists(username, key, limit, extended, page):
+    print('Retrieving top artists...')
     method = 'topartists'
     request_url = url_to_format.format(method, username, key, limit, extended, page)
     artist_names = []
@@ -121,10 +129,12 @@ def get_top_artists(username, key, limit, extended, page):
     top_artists = pd.DataFrame()
     top_artists['artist'] = artist_names
     top_artists['play_count'] = play_counts
+    print('Done!')
     return top_artists
 
 
 def get_top_albums(username, key, limit, extended, page):
+    print('Retrieving top albums...')
     method = 'topalbums'
     request_url = url_to_format.format(method, username, key, limit, extended, page)
     album_names = []
@@ -139,15 +149,17 @@ def get_top_albums(username, key, limit, extended, page):
     top_albums['albums'] = album_names
     top_albums['artist'] = artist_name
     top_albums['playcount'] = play_counts
+    print('Done!')
     return top_albums
 
 
 def get_all_scrobbles(username, key, limit, extended, page):
+    print('Retrieving all scrobbles...')
     method = 'recenttracks'
     request_url = url_to_format.format(method, username, key, limit, extended, page)
     response = requests.get(request_url).json()
     total_pages = response[method]['@attr']['totalPages']
-    print(total_pages, ' number of pages found!')
+    print(total_pages, ' pages found!')
     big_response = []
     for page_num in range(1, int(total_pages) + 1):  # int(total_pages)
         print('Processing page: ', int(page_num))
@@ -172,14 +184,17 @@ def get_all_scrobbles(username, key, limit, extended, page):
     scrobble_data['artist'] = artist_name
     scrobble_data['uts_timestamp'] = date_uts
     scrobble_data['text_timestamp'] = date_text
+    print('Done!')
     return scrobble_data
 
 
 def output_data(config):
     if config.scrape_genre_data == '1':
+        print('Retrieving genre data...')
         if config.use_lastfm_tags == '0':
             get_tracks_genre_discog(get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode, config.discogs_api_key, config.discogs_api_secret_key, config.wait_time).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
         elif config.use_lastfm_tags == '1':
+            print('Genre data will not be retrieved')
             get_tracks_genre_lastfm(get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.last_fm_api_key).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
         else:
             print("Set last_fm_tag_data to a value")

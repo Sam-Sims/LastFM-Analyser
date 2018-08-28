@@ -2,6 +2,7 @@ import matplotlib.font_manager as fm
 import pandas as pd, numpy as np, string, re, pytz
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
+from matplotlib.ticker import AutoMinorLocator
 
 
 class GraphSettings:
@@ -18,6 +19,7 @@ def analyse_top_artists(graph_settings):
     top_artists = top_artists.set_index('artist')['play_count'].head(20)
     ax = top_artists.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None, zorder=2)
     ax.yaxis.grid(True)
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_xticklabels(top_artists.index, rotation=45, rotation_mode='anchor', ha='right', fontproperties=graph_settings.ticks_font)
     ax.set_title('Top Artists', fontproperties=graph_settings.title_font)
     ax.set_xlabel('', fontproperties=graph_settings.label_font)
@@ -48,6 +50,7 @@ def analyse_top_tracks(graph_settings):
 
     ax = top_tracks.sort_values().plot(kind='barh', figsize=[6, 10], width=0.8, alpha=0.6, color='#ce6c31', edgecolor=None, zorder=2)
     ax.xaxis.grid(True)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_title('Top Tracks', fontproperties=graph_settings.title_font)
     ax.set_xlabel('', fontproperties=graph_settings.label_font)
     ax.set_ylabel('Track', fontproperties=graph_settings.label_font)
@@ -65,6 +68,7 @@ def analyse_top_albums(graph_settings):
     ax = top_albums.sort_values().plot(kind='barh', figsize=[6, 10], width=0.8, alpha=0.6, color='#ce6c31', edgecolor=None, zorder=2)
 
     ax.xaxis.grid(True)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_title('Top Albums', fontproperties=graph_settings.title_font)
     ax.set_xlabel('', fontproperties=graph_settings.label_font)
     ax.set_ylabel('Album', fontproperties=graph_settings.label_font)
@@ -75,8 +79,9 @@ def analyse_top_albums(graph_settings):
 
 def main():
     graph_settings = GraphSettings()
-    #analyse_top_artists(graph_settings)
+    analyse_top_artists(graph_settings)
     analyse_top_albums(graph_settings)
+    analyse_top_tracks(graph_settings)
 
 
 if __name__ == "__main__":
