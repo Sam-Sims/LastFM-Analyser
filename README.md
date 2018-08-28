@@ -5,7 +5,7 @@ Scrapes lastFM to visualise your music tastes. The program has the ability to ge
 
 ## Getting Started
 
-Clone the project to your local system or download both python files. Ensure python3 is installed aand up to date.
+Clone the project to your local system. Ensure python3 is installed and up to date.
 
 ### Prerequisites
 
