@@ -1,7 +1,7 @@
 # LastFM-Analyser
-Scrapes lastFM to visualise your music tastes. The program has the ability to generate graphs based on your top artists, albums and songs.
-
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
+
+Scrapes lastFM to visualise your music tastes. The program has the ability to generate graphs based on your top artists, albums and songs.
 
 ## Main Features
 
@@ -27,7 +27,7 @@ Fill in the config file with your API keys,
 
 ```
 API key for lastFM (can be found here: https://www.last.fm/api)
-#PI keys for discogs can be found here: https://www.discogs.com/developers/)
+API keys for discogs can be found here: https://www.discogs.com/developers/)
 ```
 
 ## Usage
