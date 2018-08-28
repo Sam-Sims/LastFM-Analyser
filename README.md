@@ -26,15 +26,17 @@ pip install -r requirements.txt
 Fill in the config file with your API keys,
 
 ```
-API key for lastFM (can be found here: https://www.last.fm/api)
-API keys for discogs can be found here: https://www.discogs.com/developers/)
+API key for lastFM can be found here: https://www.last.fm/api
+API keys for discogs can be found here: https://www.discogs.com/developers/
 ```
 
 ## Usage
 
-Run the lastfm Downloader first to create the CSV files of your music data, stored in \data
+Run the lastfm Downloader first to create the CSV files of your music data, stored in \data.
+
 `python lastfmdownloader.py`
 
-Run the analyser to create the graphs, stored in \images
+Run the analyser to create the graphs, stored in \images.
+
 `python lastfmanalyse.py`
 
