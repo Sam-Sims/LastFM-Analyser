@@ -3,20 +3,19 @@ Scrapes lastFM to visualise your music tastes. The program has the ability to ge
 
 ![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)
 
+## Main Features
+
+* Retrieves your top artists, albums and tracks from lastFM and stored them in a easy to read CSV file.
+* Retrieves all your scrobbles and stores them in an easy to read CSV file.
+* Visulises the data, by plotting graphs of your top tracks, albums and artists.
+
 ## Getting Started
 
 Clone the project to your local system. Ensure python3 is installed and up to date.
 
-### Prerequisites
+### Installing
 
 In the root directory create a folder called 'data' and one called 'images'. This will be where the csv data, and graphs are stored respectively.
-
-Python 3.7
-
-Uses pandas, matplotlib and requests
-
-
-### Installing
 
 Install dependencies.
 
