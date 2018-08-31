@@ -2,7 +2,9 @@ import matplotlib.font_manager as fm
 import pandas as pd, numpy as np, string, re, pytz
 import matplotlib.pyplot as plt
 from datetime import datetime as dt
+import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator
+
 
 
 class GraphSettings:
@@ -77,11 +79,36 @@ def analyse_top_albums(graph_settings):
     plt.show()
 
 
+def tracks_by_month(graph_settings, year):
+    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8', usecols=[0, 1, 2, 4])
+    scrobbles['text_timestamp'] = pd.to_datetime(scrobbles['text_timestamp'])
+    scrobbles_split_month = [g for n, g in scrobbles.set_index('text_timestamp').groupby(pd.Grouper(freq='M'))]
+    month_counts = []
+    for idx in range(len(scrobbles_split_month)):
+        df = scrobbles_split_month[idx]
+        month_counts.append(df['track'].count())
+    print(month_counts)
+
+    if len(month_counts) is not 12:
+        times_to_loop = 12 - len(month_counts)
+        print(times_to_loop)
+        for _ in range(times_to_loop):
+            month_counts.append('0')
+
+    df_month = pd.DataFrame(index=['January', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], data=month_counts)
+    print(df_month)
+    df_month[[0]] = df_month[[0]].apply(pd.to_numeric)
+    ax = df_month.plot(kind='line', figsize=[12, 5], linewidth=4, alpha=0.6, color='#003399')
+    plt.show()
+
+
+
 def main():
     graph_settings = GraphSettings()
-    analyse_top_artists(graph_settings)
-    analyse_top_albums(graph_settings)
-    analyse_top_tracks(graph_settings)
+    #analyse_top_artists(graph_settings)
+    #analyse_top_albums(graph_settings)
+    #analyse_top_tracks(graph_settings)
+    tracks_by_month(graph_settings, '2018')
 
 
 if __name__ == "__main__":
