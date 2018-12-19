@@ -89,18 +89,10 @@ def tracks_by_month(graph_settings, year):
         month_counts.append(df['track'].count())
     print(month_counts)
 
-    if len(month_counts) is not 12:
-        times_to_loop = 12 - len(month_counts)
-        print(times_to_loop)
-        for _ in range(times_to_loop):
-            month_counts.append('0')
-
-    df_month = pd.DataFrame(index=['January', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], data=month_counts)
-    print(df_month)
-    df_month[[0]] = df_month[[0]].apply(pd.to_numeric)
-    ax = df_month.plot(kind='line', figsize=[12, 5], linewidth=4, alpha=0.6, color='#003399')
+    months = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()
+    plt.plot(months, month_counts)
+    plt.savefig('images/lastfm-songs-per-motnh.png', bbox_inches='tight', dpi=100)
     plt.show()
-
 
 
 def main():
