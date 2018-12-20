@@ -79,33 +79,29 @@ def analyse_top_albums(graph_settings):
     plt.show()
 
 
-def tracks_by_month(graph_settings, year):
-    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8', usecols=[0, 1, 2, 4])
-    scrobbles['text_timestamp'] = pd.to_datetime(scrobbles['text_timestamp'])
-    scrobbles_split_month = [g for n, g in scrobbles.set_index('text_timestamp').groupby(pd.Grouper(freq='M'))]
-    month_counts = []
-    for idx in range(len(scrobbles_split_month)):
-        df = scrobbles_split_month[idx]
-        month_counts.append(df['track'].count())
-    df_to_plot = pd.DataFrame(data=month_counts, columns=['Count'])
+def tracks_by_month(graph_settings):
+    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+    month_counts = scrobbles['month'].value_counts().sort_index()
     months = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()
-    df_to_plot['Months'] = months
-    df_to_plot.set_index('Months')
-    ax = df_to_plot.plot(kind='line', figsize=[11, 7], color='#ce6c31')
-    ax.set_xticks(df_to_plot.index)
-    ax.set_xticklabels(df_to_plot.Months)
-    ax.set_title('Song plays per month', fontproperties=graph_settings.title_font)
+    df = pd.DataFrame(list(dict(zip(months, month_counts)).items()), columns=['Month', 'Count'])
+    ax = df.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31', markerfacecolor='w', markersize=8, markeredgewidth=2)
+    ax.yaxis.grid(True)
+    ax.xaxis.grid(True)
+    ax.set_xticklabels(df.Month)
+    ax.set_xticks(df.index)
+    ax.set_title('Number of song plays across the year', fontproperties=graph_settings.title_font)
     ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
-    ax.set_xlabel('Month', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-songs-per-month.png', bbox_inches='tight', dpi=100)
     plt.show()
 
+
 def main():
     graph_settings = GraphSettings()
-    analyse_top_artists(graph_settings)
-    analyse_top_albums(graph_settings)
-    analyse_top_tracks(graph_settings)
-    tracks_by_month(graph_settings, '2018')
+    #analyse_top_artists(graph_settings)
+    #analyse_top_albums(graph_settings)
+    #analyse_top_tracks(graph_settings)
+    #tracks_by_month(graph_settings, '2018')
+    tracks_by_month(graph_settings)
 
 
 if __name__ == "__main__":
