@@ -54,7 +54,6 @@ def analyse_top_tracks(graph_settings):
     ax.xaxis.grid(True)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_title('Top Tracks', fontproperties=graph_settings.title_font)
-    ax.set_xlabel('', fontproperties=graph_settings.label_font)
     ax.set_ylabel('Track', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Playcount', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-tracks-played-most.png', bbox_inches='tight', dpi=100)
@@ -63,16 +62,17 @@ def analyse_top_tracks(graph_settings):
 
 def analyse_top_albums(graph_settings):
     top_albums = pd.read_csv('data/lastfm_top_albums.csv', encoding='utf-8')
+    print(top_albums)
     index = top_albums.apply(make_label, args=('artist', 'albums'), axis='columns')
     top_albums = top_albums.set_index(index).drop(labels=['artist', 'albums'], axis='columns')
     top_albums = top_albums['playcount'].head(20)
     top_albums.head()
+    print(top_albums)
     ax = top_albums.sort_values().plot(kind='barh', figsize=[6, 10], width=0.8, alpha=0.6, color='#ce6c31', edgecolor=None, zorder=2)
 
     ax.xaxis.grid(True)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_title('Top Albums', fontproperties=graph_settings.title_font)
-    ax.set_xlabel('', fontproperties=graph_settings.label_font)
     ax.set_ylabel('Album', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Playcount', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-albums-played-most.png', bbox_inches='tight', dpi=100)
@@ -87,10 +87,16 @@ def tracks_by_month(graph_settings, year):
     for idx in range(len(scrobbles_split_month)):
         df = scrobbles_split_month[idx]
         month_counts.append(df['track'].count())
-    print(month_counts)
-
+    df_to_plot = pd.DataFrame(data=month_counts, columns=['Count'])
     months = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()
-    plt.plot(months, month_counts)
+    df_to_plot['Months'] = months
+    df_to_plot.set_index('Months')
+    ax = df_to_plot.plot(kind='line', figsize=[11, 7], color='#ce6c31')
+    ax.set_xticks(df_to_plot.index)
+    ax.set_xticklabels(df_to_plot.Months)
+    ax.set_title('Song plays per month', fontproperties=graph_settings.title_font)
+    ax.set_ylabel('Count', fontproperties=graph_settings.label_font)
+    ax.set_xlabel('Month', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-songs-per-motnh.png', bbox_inches='tight', dpi=100)
     plt.show()
 
