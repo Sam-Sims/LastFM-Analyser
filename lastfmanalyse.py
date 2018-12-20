@@ -95,13 +95,28 @@ def tracks_by_month(graph_settings):
     plt.show()
 
 
+def tracks_by_days_week(graph_settings):
+    scrobbles = scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+    scrobbles['text_timestamp'] = pd.to_datetime(scrobbles['text_timestamp'])
+    scrobbles['dow'] = scrobbles['text_timestamp'].map(lambda x: x.weekday())
+    day_counts = scrobbles['dow'].value_counts().sort_index()
+    day_counts.index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    ax = day_counts.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None, zorder=2)
+    ax.yaxis.grid(True)
+    ax.set_title('Number of song played per day of the week', fontproperties=graph_settings.title_font)
+    ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
+    plt.savefig('images/lastfm-songs-per-weekday.png', bbox_inches='tight', dpi=100)
+    plt.show()
+
+
 def main():
     graph_settings = GraphSettings()
     #analyse_top_artists(graph_settings)
     #analyse_top_albums(graph_settings)
     #analyse_top_tracks(graph_settings)
     #tracks_by_month(graph_settings, '2018')
-    tracks_by_month(graph_settings)
+    #tracks_by_month(graph_settings)
+    tracks_by_days_week(graph_settings)
 
 
 if __name__ == "__main__":
