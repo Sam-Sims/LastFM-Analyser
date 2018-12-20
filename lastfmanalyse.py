@@ -95,17 +95,16 @@ def tracks_by_month(graph_settings, year):
     ax.set_xticks(df_to_plot.index)
     ax.set_xticklabels(df_to_plot.Months)
     ax.set_title('Song plays per month', fontproperties=graph_settings.title_font)
-    ax.set_ylabel('Count', fontproperties=graph_settings.label_font)
+    ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Month', fontproperties=graph_settings.label_font)
-    plt.savefig('images/lastfm-songs-per-motnh.png', bbox_inches='tight', dpi=100)
+    plt.savefig('images/lastfm-songs-per-month.png', bbox_inches='tight', dpi=100)
     plt.show()
-
 
 def main():
     graph_settings = GraphSettings()
-    #analyse_top_artists(graph_settings)
-    #analyse_top_albums(graph_settings)
-    #analyse_top_tracks(graph_settings)
+    analyse_top_artists(graph_settings)
+    analyse_top_albums(graph_settings)
+    analyse_top_tracks(graph_settings)
     tracks_by_month(graph_settings, '2018')
 
 
