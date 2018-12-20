@@ -59,7 +59,7 @@ def get_tracks_genre_lastfm(_top_tracks, api_key):
     for index, row in _top_tracks.iterrows():
         artist = row['artist']
         track = row['track']
-        request_url = tag_url_to_format.format(method, artist, track, autocorrect, api_key)
+        request_url = tag_url_to_format.format(method, artist.replace(' ', ''), track, autocorrect, api_key)
         response = requests.get(request_url).json()
         print('Processing tag data: ', artist, ' - ', track)
         tags = []
@@ -82,7 +82,7 @@ def get_tracks_genre_discog(_top_tracks, discog_scape_mode, key_discog, secret_k
             search = artist + ' ' + track
             request_url = discogs_url_to_format.format(search, key_discog, secret_key_discog)
             response = requests.get(request_url).json()
-            time.sleep(wait_time)
+            time.sleep(int(wait_time))
             print('Processing genre data: ', artist, ' - ', track)
 
             genres_temp = []
@@ -178,6 +178,7 @@ def get_all_scrobbles(username, key, limit, extended, page):
                 album_name.append(scrobble['album']['#text'])
                 date_utc.append(scrobble['date']['uts'])
                 date_text.append(scrobble['date']['#text'])
+
     scrobble_data = pd.DataFrame()
     scrobble_data['track'] = track_name
     scrobble_data['album'] = album_name
@@ -185,7 +186,6 @@ def get_all_scrobbles(username, key, limit, extended, page):
     scrobble_data['timestamp'] = date_utc
     scrobble_data['text_timestamp'] = date_text
 
-    #scrobble_data['timestamp2'] = pd.to_datetime(scrobble_data['text_timestamp'])
     scrobble_data['text_timestamp'] = pd.to_datetime(scrobble_data['text_timestamp'])
     scrobble_data['year'] = scrobble_data['text_timestamp'].map(lambda x: x.year)
     scrobble_data['month'] = scrobble_data['text_timestamp'].map(lambda x: x.month)
