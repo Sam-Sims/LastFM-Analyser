@@ -1,12 +1,12 @@
 import requests, json, time, pandas as pd
 from configparser import ConfigParser
 
-# Global request url for lastFM API
+# Global request url for lastFM API that can be manipulated
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
 
 
 class Config:
-
+    # Reads the config file, to be created as a config object, allowing parameters to be read E.g (config.last_fm_api_key)
     def __init__(self):
         config = ConfigParser()
         config.read('config.ini')
@@ -168,7 +168,7 @@ def get_all_scrobbles(username, key, limit, extended, page):
     artist_name = []
     track_name = []
     album_name = []
-    date_uts = []
+    date_utc = []
     date_text = []
     for responses in big_response:
         for scrobble in responses[method]['track']:
@@ -176,14 +176,22 @@ def get_all_scrobbles(username, key, limit, extended, page):
                 artist_name.append(scrobble['artist']['#text'])
                 track_name.append(scrobble['name'])
                 album_name.append(scrobble['album']['#text'])
-                date_uts.append(scrobble['date']['uts'])
+                date_utc.append(scrobble['date']['uts'])
                 date_text.append(scrobble['date']['#text'])
     scrobble_data = pd.DataFrame()
     scrobble_data['track'] = track_name
     scrobble_data['album'] = album_name
     scrobble_data['artist'] = artist_name
-    scrobble_data['uts_timestamp'] = date_uts
+    scrobble_data['timestamp'] = date_utc
     scrobble_data['text_timestamp'] = date_text
+
+    #scrobble_data['timestamp2'] = pd.to_datetime(scrobble_data['text_timestamp'])
+    scrobble_data['text_timestamp'] = pd.to_datetime(scrobble_data['text_timestamp'])
+    scrobble_data['year'] = scrobble_data['text_timestamp'].map(lambda x: x.year)
+    scrobble_data['month'] = scrobble_data['text_timestamp'].map(lambda x: x.month)
+    scrobble_data['day'] = scrobble_data['text_timestamp'].map(lambda x: x.day)
+    scrobble_data['hour'] = scrobble_data['text_timestamp'].map(lambda x: x.hour)
+    scrobble_data['minute'] = scrobble_data['text_timestamp'].map(lambda x: x.minute)
     print('Done!')
     return scrobble_data
 
