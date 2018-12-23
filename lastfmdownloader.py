@@ -1,5 +1,8 @@
-import requests, json, time, pandas as pd
 from configparser import ConfigParser
+
+import pandas as pd
+import requests
+import time
 
 # Global request url for lastFM API that can be manipulated
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
@@ -210,12 +213,12 @@ def output_data(config):
         get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
     get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
     get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_albums.csv', index=None, encoding='utf-8')
-    get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
+    get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
+
 
 def main():
     config = Config()
     output_data(config)
-
 
 
 if __name__ == "__main__":
