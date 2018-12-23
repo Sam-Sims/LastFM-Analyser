@@ -110,7 +110,6 @@ def tracks_by_hour(graph_settings):
     scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
     hour_counts = scrobbles['hour'].value_counts().sort_index()
     ax = hour_counts.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31', markerfacecolor='w', markersize=8, markeredgewidth=2)
-    print(hour_counts)
     ax.yaxis.grid(True)
     ax.xaxis.grid(True)
     ticklabels = ['%s:00' % i for i in range(24)]

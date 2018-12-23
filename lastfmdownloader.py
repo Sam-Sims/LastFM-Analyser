@@ -3,6 +3,7 @@ from configparser import ConfigParser
 import pandas as pd
 import requests
 import time
+import os
 
 # Global request url for lastFM API that can be manipulated
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
@@ -30,6 +31,18 @@ class Config:
         self.wait_time = config.get('SCRAPING_SETTINGS', 'wait_time')
         self.use_lastfm_tags = config.get('SCRAPING_SETTINGS', 'use_lastfm_tags')
         self.discog_scrape_mode = config.get('SCRAPING_SETTINGS', 'discogs_scrape_mode')
+
+        path = os.getcwd()
+        if not os.path.exists(path + '\images'):
+            print('Images directory does not exist! Attempting to create directory...')
+            _path = path + '\images'
+            os.makedirs(_path, exist_ok=True)
+            print('Images directory created successfully')
+        if not os.path.exists(path + '\data'):
+            print('Data directory does not exist! Attempting to create directory...')
+            _path = path + '\dataa'
+            os.makedirs(_path, exist_ok=True)
+            print('Data directory created successfully')
 
 
 def get_top_tracks(username, api_key, limit, extended, page):
