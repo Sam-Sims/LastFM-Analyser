@@ -1,6 +1,7 @@
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from matplotlib.ticker import AutoMinorLocator
 
 
@@ -122,6 +123,26 @@ def tracks_by_hour(graph_settings):
     plt.savefig('images/lastfm-songs-per-hour.png', bbox_inches='tight', dpi=100)
     plt.show()
 
+
+def tracks_by_hour_for_given_month(graph_settings, month):
+    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+    scrobbles = scrobbles.query('month == '  + str(month))
+    hour_counts = scrobbles['hour'].value_counts().sort_index()
+    new_index = list(range(0, 24))
+    hour_counts_reindex = hour_counts.reindex(new_index, fill_value=0)
+    ax = hour_counts_reindex.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31', markerfacecolor='w', markersize=8, markeredgewidth=2)
+    ax.yaxis.grid(True)
+    ax.xaxis.grid(True)
+    ticklabels = ['%s:00' % i for i in range(24)]
+    ax.set_xticks(hour_counts_reindex.index)
+    ax.set_xticklabels(ticklabels, rotation=45)
+    
+    ax.set_title('Total song plays vs Hours they were played at for the month of ' + str(month), fontproperties=graph_settings.title_font)
+    ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
+    ax.set_xlabel('Hour', fontproperties=graph_settings.label_font)
+    plt.savefig('images/lastfm-songs-per-hour_for_month.png', bbox_inches='tight', dpi=100)
+    plt.show()
+
 def main():
     graph_settings = GraphSettings()
     #analyse_top_artists(graph_settings)
@@ -130,7 +151,8 @@ def main():
     #tracks_by_month(graph_settings, '2018')
     #tracks_by_month(graph_settings)
     #tracks_by_days_week(graph_settings)
-    tracks_by_hour(graph_settings)
+    #tracks_by_hour(graph_settings)
+    tracks_by_hour_for_given_month(graph_settings, 12)
 
 
 if __name__ == "__main__":
