@@ -14,7 +14,7 @@ Scrapes lastFM to visualise your music tastes. The program has the ability to ge
 
 Ensure Python 3.7 is installed and up to date.
 
-In the root directory create a folder called 'data' and one called 'images'. This will be where the csv data, and graphs are stored respectively.
+The program will create the required directories if they do not already exist.
 
 Install dependencies.
 
