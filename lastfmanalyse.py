@@ -1,8 +1,9 @@
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 from matplotlib.ticker import AutoMinorLocator
+import os
+import calendar
 
 
 class GraphSettings:
@@ -12,6 +13,61 @@ class GraphSettings:
         self.label_font = fm.FontProperties(family=family, style='normal', size=16, weight='normal', stretch='normal')
         self.ticks_font = fm.FontProperties(family=family, style='normal', size=12, weight='normal', stretch='normal')
         self.ticks_font_h = fm.FontProperties(family=family, style='normal', size=10.5, weight='normal', stretch='normal')
+
+
+class GraphsForGivenMonth:
+    def __init__(self, month, graph_settings):
+        self.scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+        self.month = month
+        self.graph_settings = graph_settings
+        self.month_name = calendar.month_name[self.month]
+
+        path = os.getcwd() + '\images'
+        if not os.path.exists(path + '\\' + self.month_name):
+            print('Month directory does not exist! Attempting to create directory...')
+            _path = path + '\\' + self.month_name
+            os.makedirs(_path, exist_ok=True)
+            print('Month directory created successfully!')
+        self.path_to_use = path + '\\' + self.month_name + '\\'
+
+
+    def tracks_by_hour_for_given_month(self):
+        _scrobbles = self.scrobbles.query('month == ' + str(self.month))
+        hour_counts = _scrobbles['hour'].value_counts().sort_index()
+        new_index = list(range(0, 24))
+        hour_counts_reindex = hour_counts.reindex(new_index, fill_value=0)
+        ax = hour_counts_reindex.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31',
+                                      markerfacecolor='w', markersize=8, markeredgewidth=2)
+        ax.yaxis.grid(True)
+        ax.xaxis.grid(True)
+        ticklabels = ['%s:00' % i for i in range(24)]
+        ax.set_xticks(hour_counts_reindex.index)
+        ax.set_xticklabels(ticklabels, rotation=45)
+
+        ax.set_title('Total song plays vs Time for the month of ' + str(self.month_name),
+                     fontproperties=self.graph_settings.title_font)
+        ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
+        ax.set_xlabel('Hour', fontproperties=self.graph_settings.label_font)
+        plt.savefig(self.path_to_use + 'lastfm-songs-per-hour_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
+        plt.show()
+
+    def tracks_by_days_week(self):
+        _scrobbles = self.scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+        _scrobbles = self.scrobbles.query('month == ' + str(self.month))
+        _scrobbles['text_timestamp'] = pd.to_datetime(_scrobbles['text_timestamp'])
+        _scrobbles['dow'] = _scrobbles['text_timestamp'].map(lambda x: x.weekday())
+        day_counts = _scrobbles['dow'].value_counts().sort_index()
+        day_counts.index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        ax = day_counts.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
+                             zorder=2)
+        ax.yaxis.grid(True)
+        ax.set_title('Total song plays vs Day of week for the month of ' + self.month_name, fontproperties=self.graph_settings.title_font)
+        ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
+        plt.savefig(self.path_to_use + 'lastfm-songs-per-weekday_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
+        plt.show()
+
+
+
 
 
 def analyse_top_artists(graph_settings):
@@ -124,25 +180,6 @@ def tracks_by_hour(graph_settings):
     plt.show()
 
 
-def tracks_by_hour_for_given_month(graph_settings, month):
-    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
-    scrobbles = scrobbles.query('month == '  + str(month))
-    hour_counts = scrobbles['hour'].value_counts().sort_index()
-    new_index = list(range(0, 24))
-    hour_counts_reindex = hour_counts.reindex(new_index, fill_value=0)
-    ax = hour_counts_reindex.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31', markerfacecolor='w', markersize=8, markeredgewidth=2)
-    ax.yaxis.grid(True)
-    ax.xaxis.grid(True)
-    ticklabels = ['%s:00' % i for i in range(24)]
-    ax.set_xticks(hour_counts_reindex.index)
-    ax.set_xticklabels(ticklabels, rotation=45)
-    
-    ax.set_title('Total song plays vs Hours they were played at for the month of ' + str(month), fontproperties=graph_settings.title_font)
-    ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
-    ax.set_xlabel('Hour', fontproperties=graph_settings.label_font)
-    plt.savefig('images/lastfm-songs-per-hour_for_month.png', bbox_inches='tight', dpi=100)
-    plt.show()
-
 def main():
     graph_settings = GraphSettings()
     #analyse_top_artists(graph_settings)
@@ -152,7 +189,10 @@ def main():
     #tracks_by_month(graph_settings)
     #tracks_by_days_week(graph_settings)
     #tracks_by_hour(graph_settings)
-    tracks_by_hour_for_given_month(graph_settings, 12)
+    graph_generator_given_month = GraphsForGivenMonth(12, graph_settings)
+    graph_generator_given_month.tracks_by_days_week()
+    graph_generator_given_month.tracks_by_hour_for_given_month()
+
 
 
 if __name__ == "__main__":
