@@ -1,5 +1,3 @@
-from configparser import ConfigParser
-
 import pandas as pd
 import requests
 import time
@@ -8,40 +6,6 @@ import sys
 
 # Global request url for lastFM API that can be manipulated
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
-
-
-class Config:
-    # Reads the config file, to be created as a config object, allowing parameters to be read E.g (config.last_fm_api_key)
-    def __init__(self):
-        config = ConfigParser()
-        config.read('config.ini')
-        print('Config Loaded!')
-        #  LastFM config
-        self.last_fm_api_key = config.get('LASTFM_API_CONFIGURATION', 'api_key')
-        self.last_fm_username = config.get('LASTFM_API_CONFIGURATION', 'username')
-        self.last_fm_limit = config.get('LASTFM_API_CONFIGURATION', 'limit')
-        self.last_fm_extended = config.get('LASTFM_API_CONFIGURATION', 'extended')
-        self.last_fm_page = config.get('LASTFM_API_CONFIGURATION', 'page')
-
-        #  Discogs config
-        self.discogs_api_key = config.get('DISCOGS_API_CONFIGURATION', 'api_key')
-        self.discogs_api_secret_key = config.get('DISCOGS_API_CONFIGURATION', 'api_secret_key')
-
-        #  Scraping settings
-        self.scrape_genre_data = config.get('SCRAPING_SETTINGS', 'scrape_genre_data')
-        self.wait_time = config.get('SCRAPING_SETTINGS', 'wait_time')
-        self.use_lastfm_tags = config.get('SCRAPING_SETTINGS', 'use_lastfm_tags')
-        self.discog_scrape_mode = config.get('SCRAPING_SETTINGS', 'discogs_scrape_mode')
-
-        # Checks if directories exist for the project, if not creates them.
-        path = os.getcwd()
-        if not os.path.exists(path + '\images'):
-            print('Images directory does not exist! Aborting!')
-            sys.exit("Images folder not found!")
-        if not os.path.exists(path + '\data'):
-            print('Data directory does not exist! Aborting!')
-            sys.exit("Data folder not found!")
-
 
 def get_top_tracks(username, api_key, limit, extended, page):
     print('Retrieving top tracks...')
@@ -210,6 +174,18 @@ def get_all_scrobbles(username, key, limit, extended, page):
     return scrobble_data
 
 
+def write_csv(dataframe, filename):
+    # Checks if directories exist for the project, if not aborts.
+    path = os.getcwd()
+    if not os.path.exists(path + '\images'):
+        print('Images directory does not exist! Aborting!')
+        sys.exit("Images folder not found!")
+    if not os.path.exists(path + '\data'):
+        print('Data directory does not exist! Aborting!')
+        sys.exit("Data folder not found!")
+    dataframe.to_csv(filename, index=None, encoding='utf8')
+
+
 def output_data(config):
     if config.scrape_genre_data == '1':
         print('Retrieving genre data...')
@@ -227,10 +203,9 @@ def output_data(config):
     get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
 
 
-def main():
-    config = Config()
-    output_data(config)
+def download():
+    print('This should be imported as a module')
 
 
 if __name__ == "__main__":
-    main()
+    download()
