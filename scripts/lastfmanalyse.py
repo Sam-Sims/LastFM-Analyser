@@ -24,10 +24,10 @@ class GraphsForGivenMonth:
 
         path = os.getcwd() + '\images'
         if not os.path.exists(path + '\\' + self.month_name):
-            print('Month directory does not exist! Attempting to create directory...')
+            print(self.month_name + ' Directory does not exist! Attempting to create directory...')
             _path = path + '\\' + self.month_name
             os.makedirs(_path, exist_ok=True)
-            print('Month directory created successfully!')
+            print('Directory created successfully!')
         self.path_to_use = path + '\\' + self.month_name + '\\'
 
 
@@ -49,7 +49,6 @@ class GraphsForGivenMonth:
         ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
         ax.set_xlabel('Hour', fontproperties=self.graph_settings.label_font)
         plt.savefig(self.path_to_use + 'lastfm-songs-per-hour_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
-        plt.show()
 
     def tracks_by_days_week(self):
         _scrobbles = self.scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
@@ -57,17 +56,14 @@ class GraphsForGivenMonth:
         _scrobbles['text_timestamp'] = pd.to_datetime(_scrobbles['text_timestamp'])
         _scrobbles['dow'] = _scrobbles['text_timestamp'].map(lambda x: x.weekday())
         day_counts = _scrobbles['dow'].value_counts().sort_index()
-        day_counts.index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        new_index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        day_counts_reindex = day_counts.reindex(new_index, fill_value=0)
         ax = day_counts.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
                              zorder=2)
         ax.yaxis.grid(True)
         ax.set_title('Total song plays vs Day of week for the month of ' + self.month_name, fontproperties=self.graph_settings.title_font)
         ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
         plt.savefig(self.path_to_use + 'lastfm-songs-per-weekday_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
-        plt.show()
-
-
-
 
 
 def analyse_top_artists(graph_settings):
@@ -189,10 +185,10 @@ def main():
     #tracks_by_month(graph_settings)
     #tracks_by_days_week(graph_settings)
     #tracks_by_hour(graph_settings)
-    graph_generator_given_month = GraphsForGivenMonth(12, graph_settings)
-    graph_generator_given_month.tracks_by_days_week()
-    graph_generator_given_month.tracks_by_hour_for_given_month()
-
+    for x in range(1, 13):
+        graph_generator_given_month = GraphsForGivenMonth(x, graph_settings)
+        graph_generator_given_month.tracks_by_days_week()
+        graph_generator_given_month.tracks_by_hour_for_given_month()
 
 
 if __name__ == "__main__":
