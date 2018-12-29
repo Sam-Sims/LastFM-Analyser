@@ -1,6 +1,7 @@
 import os
 from configparser import ConfigParser
 from scripts import lastfmdownloader as lfmd
+from scripts import lastfmanalyser as lfma
 
 
 class Config:
@@ -51,7 +52,8 @@ def run_downloader(config):
 
 
 def run_analyser():
-    print('ana1')
+    graph_settings = lfma.GraphSettings()
+    lfma.analyse_all(graph_settings)
 
 
 def check_directories():
@@ -111,6 +113,7 @@ def main():
     ans = input()
     check_directories()
     check_menu_choice(ans, config)
+
 
 if __name__ == "__main__":
     main()

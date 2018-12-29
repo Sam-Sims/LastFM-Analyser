@@ -17,11 +17,10 @@ class GraphSettings:
 
 class GraphsForGivenMonth:
     def __init__(self, month, graph_settings):
-        self.scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+        self.scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
         self.month = month
         self.graph_settings = graph_settings
         self.month_name = calendar.month_name[self.month]
-
         path = os.getcwd() + '\images'
         if not os.path.exists(path + '\\' + self.month_name):
             print(self.month_name + ' Directory does not exist! Attempting to create directory...')
@@ -31,7 +30,7 @@ class GraphsForGivenMonth:
         self.path_to_use = path + '\\' + self.month_name + '\\'
 
 
-    def tracks_by_hour_for_given_month(self):
+    def tracks_by_hour(self):
         _scrobbles = self.scrobbles.query('month == ' + str(self.month))
         hour_counts = _scrobbles['hour'].value_counts().sort_index()
         new_index = list(range(0, 24))
@@ -43,31 +42,32 @@ class GraphsForGivenMonth:
         ticklabels = ['%s:00' % i for i in range(24)]
         ax.set_xticks(hour_counts_reindex.index)
         ax.set_xticklabels(ticklabels, rotation=45)
-
         ax.set_title('Total song plays vs Time for the month of ' + str(self.month_name),
                      fontproperties=self.graph_settings.title_font)
         ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
         ax.set_xlabel('Hour', fontproperties=self.graph_settings.label_font)
         plt.savefig(self.path_to_use + 'lastfm-songs-per-hour_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
+        plt.close()
 
     def tracks_by_days_week(self):
-        _scrobbles = self.scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
         _scrobbles = self.scrobbles.query('month == ' + str(self.month))
         _scrobbles['text_timestamp'] = pd.to_datetime(_scrobbles['text_timestamp'])
         _scrobbles['dow'] = _scrobbles['text_timestamp'].map(lambda x: x.weekday())
         day_counts = _scrobbles['dow'].value_counts().sort_index()
-        new_index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        day_counts_reindex = day_counts.reindex(new_index, fill_value=0)
+        #new_index = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        new_index = list(range(0, 7))
+        day_counts_new = day_counts.reindex(new_index, fill_value=0)
         ax = day_counts.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
                              zorder=2)
         ax.yaxis.grid(True)
         ax.set_title('Total song plays vs Day of week for the month of ' + self.month_name, fontproperties=self.graph_settings.title_font)
         ax.set_ylabel('Song Plays', fontproperties=self.graph_settings.label_font)
         plt.savefig(self.path_to_use + 'lastfm-songs-per-weekday_for_month of ' + self.month_name + '.png', bbox_inches='tight', dpi=100)
+        plt.close()
 
 
 def analyse_top_artists(graph_settings):
-    top_artists = pd.read_csv('data/lastfm_top_artists.csv', encoding='utf-8')
+    top_artists = pd.read_csv('data/last-fm-top-artists.csv', encoding='utf-8')
     top_artists = top_artists.set_index('artist')['play_count'].head(20)
     ax = top_artists.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None, zorder=2)
     ax.yaxis.grid(True)
@@ -79,7 +79,7 @@ def analyse_top_artists(graph_settings):
         label.set_fontproperties(graph_settings.ticks_font)
     ax.set_ylabel('Number of plays', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-artists-played-most.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
 
 
 def make_label(df, top, bot):
@@ -93,7 +93,7 @@ def make_label(df, top, bot):
 
 
 def analyse_top_tracks(graph_settings):
-    top_tracks = pd.read_csv('data/lastfm_top_tracks.csv', encoding='utf-8')
+    top_tracks = pd.read_csv('data/last-fm-top-tracks.csv', encoding='utf-8')
 
     index = top_tracks.apply(make_label, args=('artist', 'track'), axis='columns')
     top_tracks = top_tracks.set_index(index).drop(labels=['artist', 'track'], axis='columns')
@@ -107,17 +107,16 @@ def analyse_top_tracks(graph_settings):
     ax.set_ylabel('Track', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Playcount', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-tracks-played-most.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
+
 
 
 def analyse_top_albums(graph_settings):
-    top_albums = pd.read_csv('data/lastfm_top_albums.csv', encoding='utf-8')
-    print(top_albums)
+    top_albums = pd.read_csv('data/last-fm-top-albums.csv', encoding='utf-8')
     index = top_albums.apply(make_label, args=('artist', 'albums'), axis='columns')
     top_albums = top_albums.set_index(index).drop(labels=['artist', 'albums'], axis='columns')
     top_albums = top_albums['playcount'].head(20)
     top_albums.head()
-    print(top_albums)
     ax = top_albums.sort_values().plot(kind='barh', figsize=[6, 10], width=0.8, alpha=0.6, color='#ce6c31', edgecolor=None, zorder=2)
 
     ax.xaxis.grid(True)
@@ -126,11 +125,11 @@ def analyse_top_albums(graph_settings):
     ax.set_ylabel('Album', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Playcount', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-albums-played-most.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
 
 
-def tracks_by_month(graph_settings):
-    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+def analyse_tracks_by_month(graph_settings):
+    scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
     month_counts = scrobbles['month'].value_counts().sort_index()
     months = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()
     df = pd.DataFrame(list(dict(zip(months, month_counts)).items()), columns=['Month', 'Count'])
@@ -142,11 +141,11 @@ def tracks_by_month(graph_settings):
     ax.set_title('Total song plays in 2018', fontproperties=graph_settings.title_font)
     ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-songs-per-month.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
 
 
-def tracks_by_days_week(graph_settings):
-    scrobbles = scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+def analyse_tracks_by_days_week(graph_settings):
+    scrobbles = scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
     scrobbles['text_timestamp'] = pd.to_datetime(scrobbles['text_timestamp'])
     scrobbles['dow'] = scrobbles['text_timestamp'].map(lambda x: x.weekday())
     day_counts = scrobbles['dow'].value_counts().sort_index()
@@ -156,11 +155,11 @@ def tracks_by_days_week(graph_settings):
     ax.set_title('Total song plays vs Day of week they were played at', fontproperties=graph_settings.title_font)
     ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-songs-per-weekday.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
 
 
-def tracks_by_hour(graph_settings):
-    scrobbles = pd.read_csv('data/lastfm_all_scrobbles.csv', encoding='utf-8')
+def analyse_tracks_by_hour_played(graph_settings):
+    scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
     hour_counts = scrobbles['hour'].value_counts().sort_index()
     ax = hour_counts.plot(kind='line', figsize=[10, 5], linewidth=4, alpha=1, marker='o', color='#ce6c31', markerfacecolor='w', markersize=8, markeredgewidth=2)
     ax.yaxis.grid(True)
@@ -173,22 +172,24 @@ def tracks_by_hour(graph_settings):
     ax.set_ylabel('Song Plays', fontproperties=graph_settings.label_font)
     ax.set_xlabel('Hour', fontproperties=graph_settings.label_font)
     plt.savefig('images/lastfm-songs-per-hour.png', bbox_inches='tight', dpi=100)
-    plt.show()
+    plt.close()
 
 
-def main():
-    graph_settings = GraphSettings()
-    #analyse_top_artists(graph_settings)
-    #analyse_top_albums(graph_settings)
-    #analyse_top_tracks(graph_settings)
-    #tracks_by_month(graph_settings, '2018')
-    #tracks_by_month(graph_settings)
-    #tracks_by_days_week(graph_settings)
-    #tracks_by_hour(graph_settings)
+def analyse_all(graph_settings):
+    analyse_top_artists(graph_settings)
+    analyse_top_albums(graph_settings)
+    analyse_top_tracks(graph_settings)
+    analyse_tracks_by_month(graph_settings)
+    analyse_tracks_by_days_week(graph_settings)
+    analyse_tracks_by_hour_played(graph_settings)
     for x in range(1, 13):
         graph_generator_given_month = GraphsForGivenMonth(x, graph_settings)
         graph_generator_given_month.tracks_by_days_week()
-        graph_generator_given_month.tracks_by_hour_for_given_month()
+        graph_generator_given_month.tracks_by_hour()
+
+
+def main():
+    print('This should be imported as a module')
 
 
 if __name__ == "__main__":

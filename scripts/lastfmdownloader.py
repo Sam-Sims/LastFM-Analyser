@@ -203,9 +203,9 @@ def output_data(config):
     get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
 
 
-def download():
+def main():
     print('This should be imported as a module')
 
 
 if __name__ == "__main__":
-    download()
+    main()
