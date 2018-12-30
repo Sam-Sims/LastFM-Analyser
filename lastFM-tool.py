@@ -32,22 +32,31 @@ def run_downloader(config):
     if config.scrape_genre_data == '1':
         print('Retrieving genre data...')
         if config.use_lastfm_tags == '0':
-            df = lfmd.get_tracks_genre_discog(lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode, config.discogs_api_key, config.discogs_api_secret_key, config.wait_time)
+            df = lfmd.get_tracks_genre_discog(
+                lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                                    config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode,
+                config.discogs_api_key, config.discogs_api_secret_key, config.wait_time)
             lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
         elif config.use_lastfm_tags == '1':
             print('Genre data will not be retrieved')
-            df = lfmd.get_tracks_genre_lastfm(lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.last_fm_api_key)
+            df = lfmd.get_tracks_genre_lastfm(
+                lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                                    config.last_fm_extended, config.last_fm_page), config.last_fm_api_key)
             lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
         else:
             print("Set last_fm_tag_data to a value")
     elif config.scrape_genre_data == '0':
-        df = lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page)
+        df = lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                                 config.last_fm_extended, config.last_fm_page)
         lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
-    df = lfmd.get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page)
+    df = lfmd.get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                              config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-top-artists.csv')
-    df = lfmd.get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page)
+    df = lfmd.get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                             config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-top-albums.csv')
-    df = lfmd.get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page)
+    df = lfmd.get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                                config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-all-songs.csv')
 
 
@@ -68,6 +77,12 @@ def check_directories():
         _path = path + '\data'
         os.makedirs(_path, exist_ok=True)
         print('Data directory created successfully!')
+    if not os.path.exists(path + '\images\\All time'):
+        print('All time images directory does not exist! Attempting to create directory...')
+        _path = path + '\images\\All time'
+        os.makedirs(_path, exist_ok=True)
+        print('Data directory created successfully!')
+
 
 def check_menu_choice(ans, config):
     try:
@@ -106,6 +121,7 @@ def print_main_menu():
     print('2: Generate Graphs')
     print('3: Generate Report')
     print('4: Verify Config')
+
 
 def main():
     config = Config()

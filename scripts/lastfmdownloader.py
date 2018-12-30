@@ -7,6 +7,7 @@ import sys
 # Global request url for lastFM API that can be manipulated
 url_to_format = 'https://ws.audioscrobbler.com/2.0/?method=user.get{}&user={}&api_key={}&limit={}&extended={}&page={}&format=json'
 
+
 def get_top_tracks(username, api_key, limit, extended, page):
     print('Retrieving top tracks...')
     method = 'toptracks'
@@ -183,6 +184,9 @@ def write_csv(dataframe, filename):
     if not os.path.exists(path + '\data'):
         print('Data directory does not exist! Aborting!')
         sys.exit("Data folder not found!")
+    if not os.path.exists(path + '\images\\All time'):
+        print('Images all time directory does not exist! Aborting!')
+        sys.exit("Images folder not found!")
     dataframe.to_csv(filename, index=None, encoding='utf8')
 
 
@@ -190,17 +194,28 @@ def output_data(config):
     if config.scrape_genre_data == '1':
         print('Retrieving genre data...')
         if config.use_lastfm_tags == '0':
-            get_tracks_genre_discog(get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode, config.discogs_api_key, config.discogs_api_secret_key, config.wait_time).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
+            get_tracks_genre_discog(
+                get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                               config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode,
+                config.discogs_api_key, config.discogs_api_secret_key, config.wait_time).to_csv(
+                'data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
         elif config.use_lastfm_tags == '1':
             print('Genre data will not be retrieved')
-            get_tracks_genre_lastfm(get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page), config.last_fm_api_key).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
+            get_tracks_genre_lastfm(
+                get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+                               config.last_fm_extended, config.last_fm_page), config.last_fm_api_key).to_csv(
+                'data/lastfm_top_tracks.csv', index=None, encoding='utf-8')
         else:
             print("Set last_fm_tag_data to a value")
     elif config.scrape_genre_data == '0':
-        get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
-    get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
-    get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_top_albums.csv', index=None, encoding='utf-8')
-    get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended, config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
+        get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,
+                       config.last_fm_page).to_csv('data/lastfm_top_tracks.csv', index=None, encoding='utf8')
+    get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,
+                    config.last_fm_page).to_csv('data/lastfm_top_artists.csv', index=None, encoding='utf-8')
+    get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,
+                   config.last_fm_page).to_csv('data/lastfm_top_albums.csv', index=None, encoding='utf-8')
+    get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit, config.last_fm_extended,
+                      config.last_fm_page).to_csv('data/lastfm_all_scrobbles.csv', index=None, encoding='utf-8')
 
 
 def main():
