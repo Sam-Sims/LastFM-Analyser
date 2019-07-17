@@ -286,15 +286,14 @@ def workout_years():
 
 
 def analyse_all(graph_settings):
-    print(workout_years())
     for i in range(len(workout_years())):
         graph_gen = GraphGeneratorForYear(workout_years()[i])
         graph_gen.work_top_artists()
         graph_gen.work_time_top_tracks()
         graph_gen.work_time_top_albums()
 
-    #graph_generator_all_time = GraphGeneratorForAllTime()
-    #graph_generator_all_time.analyse_all()
+    graph_generator_all_time = GraphGeneratorForAllTime()
+    graph_generator_all_time.analyse_all()
     #for x in range(1, 13):
         #graph_generator_given_month = GraphGeneratorForGivenMonth(x)
         #graph_generator_given_month.tracks_by_days_week()
