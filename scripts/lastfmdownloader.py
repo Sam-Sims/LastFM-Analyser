@@ -178,15 +178,10 @@ def get_all_scrobbles(username, key, limit, extended, page):
 def write_csv(dataframe, filename):
     # Checks if directories exist for the project, if not aborts.
     path = os.getcwd()
-    if not os.path.exists(path + '\images'):
-        print('Images directory does not exist! Aborting!')
-        sys.exit("Images folder not found!")
     if not os.path.exists(path + '\data'):
         print('Data directory does not exist! Aborting!')
         sys.exit("Data folder not found!")
-    if not os.path.exists(path + '\images\\All time'):
-        print('Images all time directory does not exist! Aborting!')
-        sys.exit("Images folder not found!")
+
     dataframe.to_csv(filename, index=None, encoding='utf8')
 
 

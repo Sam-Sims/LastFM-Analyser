@@ -61,8 +61,7 @@ def run_downloader(config):
 
 
 def run_analyser():
-    graph_settings = lfma.GraphSettings()
-    lfma.analyse_all(graph_settings)
+    lfma.analyse_all()
 
 
 def check_directories():
