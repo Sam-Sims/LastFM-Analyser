@@ -61,7 +61,7 @@ def run_downloader(config):
 
 
 def run_analyser():
-    lfma.analyse_all()
+    lfma.analyse_all(lfma.GraphSettings)
 
 
 def check_directories():
@@ -84,7 +84,7 @@ def check_directories():
 
 
 def check_menu_choice(ans, config):
-    try:
+    #try:
         if ans == '1':
             run_downloader(config)
         elif ans == '2':
@@ -95,8 +95,8 @@ def check_menu_choice(ans, config):
             print('Place Holder')
         else:
             print('Error, an answer was not supplied!')
-    except Exception as e:
-        print('An error occurred' + e)
+    #except Exception as e:
+        #print('An error occurred' + str(e))
 
 
 def print_main_menu():

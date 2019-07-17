@@ -16,7 +16,7 @@ class GraphSettings:
                                               stretch='normal')
 
 
-class GraphGeneratorForGivenMonth:
+class GraphGeneratorForGivenMonth: #Generates Graph using every month from every year
     def __init__(self, month):
         self.scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
         self.month = month
@@ -78,6 +78,7 @@ class GraphGeneratorForAllTime:
         if not os.path.exists(path):
             print('Images directory does not exist! Aborting!')
             sys.exit("Images folder not found!")
+        path = os.getcwd()
         if not os.path.exists(path + '\images'):
             print('Images directory does not exist! Aborting!')
             sys.exit("Images folder not found!")
@@ -111,7 +112,7 @@ class GraphGeneratorForAllTime:
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.set_title('Top Tracks', fontproperties=self.graph_settings.title_font)
         ax.set_ylabel('Track', fontproperties=self.graph_settings.label_font)
-        ax.set_xlabel('Playcount', fontproperties=selfgraph_settings.label_font)
+        ax.set_xlabel('Playcount', fontproperties=self.graph_settings.label_font)
         plt.savefig('images/All time/lastfm-tracks-played-most.png', bbox_inches='tight', dpi=100)
         plt.close()
 
@@ -199,15 +200,105 @@ def make_label(df, top, bot):
         bot_value = '{}{}'.format(bot_value[:maxlength - len(suffix)], suffix)
     return '{}\n{}'.format(top_value, bot_value)
 
+class GraphGeneratorForYear:
+    def __init__(self, year):
+        self.scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
+        self.year = year
+        self.graph_settings = GraphSettings()
+        path = os.getcwd() + '\images'
+        if not os.path.exists(path + '\\' + self.year):
+            print(self.year + ' Directory does not exist! Attempting to create directory...')
+            _path = path + '\\' + self.year
+            os.makedirs(_path, exist_ok=True)
+            print('Directory created successfully!')
+        self.path_to_use = path + '\\' + self.year + '\\'
+
+    def work_top_artists(self):
+        _scrobbles = self.scrobbles.query('year == ' + str(self.year))
+        value_counts = _scrobbles['artist'].value_counts()
+        _scrobbles = value_counts.rename_axis('artist').reset_index(name='play_count')
+
+        top_artists = _scrobbles.set_index('artist')['play_count'].head(20)
+        ax = top_artists.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
+                              zorder=2)
+        ax.yaxis.grid(True)
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_xticklabels(top_artists.index, rotation=45, rotation_mode='anchor', ha='right',
+                           fontproperties=self.graph_settings.ticks_font)
+        ax.set_title('Top Artists', fontproperties=self.graph_settings.title_font)
+        ax.set_xlabel('', fontproperties=self.graph_settings.label_font)
+        for label in ax.get_yticklabels():
+            label.set_fontproperties(self.graph_settings.ticks_font)
+        ax.set_ylabel('Number of plays', fontproperties=self.graph_settings.label_font)
+        plt.savefig(self.path_to_use + 'lastfm-artists-played-most for year of ' + self.year + '.png',
+                    bbox_inches='tight', dpi=100)
+        plt.close()
+
+    def work_time_top_tracks(self):
+        _scrobbles = self.scrobbles.query('year == ' + str(self.year))
+        value_counts = _scrobbles['track'].value_counts()
+        print(value_counts)
+        _scrobbles = value_counts.rename_axis('track').reset_index(name='play_count')
+
+        top_tracks = _scrobbles.set_index('track')['play_count'].head(20)
+        ax = top_tracks.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
+                              zorder=2)
+        ax.yaxis.grid(True)
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_xticklabels(top_tracks.index, rotation=45, rotation_mode='anchor', ha='right',
+                           fontproperties=self.graph_settings.ticks_font)
+        ax.set_title('Top Artists', fontproperties=self.graph_settings.title_font)
+        ax.set_xlabel('', fontproperties=self.graph_settings.label_font)
+        for label in ax.get_yticklabels():
+            label.set_fontproperties(self.graph_settings.ticks_font)
+        ax.set_ylabel('Number of plays', fontproperties=self.graph_settings.label_font)
+        plt.savefig(self.path_to_use + 'lastfm-tracks-played-most for year of ' + self.year + '.png',
+                    bbox_inches='tight', dpi=100)
+        plt.close()
+
+    def work_time_top_albums(self):
+        _scrobbles = self.scrobbles.query('year == ' + str(self.year))
+        value_counts = _scrobbles['album'].value_counts()
+        print(value_counts)
+        _scrobbles = value_counts.rename_axis('album').reset_index(name='play_count')
+
+        top_albums = _scrobbles.set_index('album')['play_count'].head(20)
+        ax = top_albums.plot(kind='bar', figsize=[11, 7], width=0.8, alpha=0.8, color='#ce6c31', edgecolor=None,
+                              zorder=2)
+        ax.yaxis.grid(True)
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_xticklabels(top_albums.index, rotation=45, rotation_mode='anchor', ha='right',
+                           fontproperties=self.graph_settings.ticks_font)
+        ax.set_title('Top Artists', fontproperties=self.graph_settings.title_font)
+        ax.set_xlabel('', fontproperties=self.graph_settings.label_font)
+        for label in ax.get_yticklabels():
+            label.set_fontproperties(self.graph_settings.ticks_font)
+        ax.set_ylabel('Number of plays', fontproperties=self.graph_settings.label_font)
+        plt.savefig(self.path_to_use + 'lastfm-albums-played-most for year of ' + self.year + '.png',
+                    bbox_inches='tight', dpi=100)
+        plt.close()
+
+def workout_years():
+    scrobbles = pd.read_csv('data/last-fm-all-songs.csv', encoding='utf-8')
+    year_list = scrobbles['year'].unique().tolist()
+    year_list = list(map(str, year_list))
+    return year_list
 
 
 def analyse_all(graph_settings):
-    graph_generator_all_time = GraphGeneratorForAllTime()
-    graph_generator_all_time.analyse_all()
-    for x in range(1, 13):
-        graph_generator_given_month = GraphGeneratorForGivenMonth(x, graph_settings)
-        graph_generator_given_month.tracks_by_days_week()
-        graph_generator_given_month.tracks_by_hour()
+    print(workout_years())
+    for i in range(len(workout_years())):
+        graph_gen = GraphGeneratorForYear(workout_years()[i])
+        graph_gen.work_top_artists()
+        graph_gen.work_time_top_tracks()
+        graph_gen.work_time_top_albums()
+
+    #graph_generator_all_time = GraphGeneratorForAllTime()
+    #graph_generator_all_time.analyse_all()
+    #for x in range(1, 13):
+        #graph_generator_given_month = GraphGeneratorForGivenMonth(x)
+        #graph_generator_given_month.tracks_by_days_week()
+        #graph_generator_given_month.tracks_by_hour()
 
 
 def main():
