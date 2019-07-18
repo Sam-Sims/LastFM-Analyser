@@ -69,18 +69,7 @@ class ArgumentParser(object):
                                         self.config.last_fm_extended, self.config.last_fm_page),
                     self.config.last_fm_api_key)
                 lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
-                df = lfmd.get_top_artists(self.config.last_fm_username, self.config.last_fm_api_key,
-                                          self.config.last_fm_limit,
-                                          self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-top-artists.csv')
-                df = lfmd.get_top_albums(self.config.last_fm_username, self.config.last_fm_api_key,
-                                         self.config.last_fm_limit,
-                                         self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-top-albums.csv')
-                df = lfmd.get_all_scrobbles(self.config.last_fm_username, self.config.last_fm_api_key,
-                                            self.config.last_fm_limit,
-                                            self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-all-songs.csv')
+                download_remaining(self.config)
                 exit()
             elif args.discogs:
                 print('Discogs genre data used')
@@ -91,46 +80,27 @@ class ArgumentParser(object):
                     self.config.discog_scrape_mode,
                     self.config.discogs_api_key, self.config.discogs_api_secret_key, self.config.wait_time)
                 lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
-                df = lfmd.get_top_artists(self.config.last_fm_username, self.config.last_fm_api_key,
-                                          self.config.last_fm_limit,
-                                          self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-top-artists.csv')
-                df = lfmd.get_top_albums(self.config.last_fm_username, self.config.last_fm_api_key,
-                                         self.config.last_fm_limit,
-                                         self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-top-albums.csv')
-                df = lfmd.get_all_scrobbles(self.config.last_fm_username, self.config.last_fm_api_key,
-                                            self.config.last_fm_limit,
-                                            self.config.last_fm_extended, self.config.last_fm_page)
-                lfmd.write_csv(df, 'data\last-fm-all-songs.csv')
+                download_remaining(self.config)
                 exit()
         print('No genre data used')
         df = lfmd.get_top_tracks(self.config.last_fm_username, self.config.last_fm_api_key, self.config.last_fm_limit,
                                      self.config.last_fm_extended, self.config.last_fm_page)
         lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
-
-        df = lfmd.get_top_artists(self.config.last_fm_username, self.config.last_fm_api_key, self.config.last_fm_limit,
-                                  self.config.last_fm_extended, self.config.last_fm_page)
-        lfmd.write_csv(df, 'data\last-fm-top-artists.csv')
-        df = lfmd.get_top_albums(self.config.last_fm_username, self.config.last_fm_api_key, self.config.last_fm_limit,
-                                 self.config.last_fm_extended, self.config.last_fm_page)
-        lfmd.write_csv(df, 'data\last-fm-top-albums.csv')
-        df = lfmd.get_all_scrobbles(self.config.last_fm_username, self.config.last_fm_api_key, self.config.last_fm_limit,
-                                    self.config.last_fm_extended, self.config.last_fm_page)
-        lfmd.write_csv(df, 'data\last-fm-all-songs.csv')
+        download_remaining(self.config)
 
 
 def run_downloader(config):
     if config.scrape_genre_data == '1':
         print('Retrieving genre data...')
         if config.use_lastfm_tags == '0':
+            print('Using discogs genre data')
             df = lfmd.get_tracks_genre_discog(
                 lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
                                     config.last_fm_extended, config.last_fm_page), config.discog_scrape_mode,
                 config.discogs_api_key, config.discogs_api_secret_key, config.wait_time)
             lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
         elif config.use_lastfm_tags == '1':
-            print('Genre data will not be retrieved')
+            print('Using lastFM genre data')
             df = lfmd.get_tracks_genre_lastfm(
                 lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
                                     config.last_fm_extended, config.last_fm_page), config.last_fm_api_key)
@@ -138,16 +108,24 @@ def run_downloader(config):
         else:
             print("Set last_fm_tag_data to a value")
     elif config.scrape_genre_data == '0':
+        print('Genre data will not be retrieved')
         df = lfmd.get_top_tracks(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
                                  config.last_fm_extended, config.last_fm_page)
         lfmd.write_csv(df, 'data\last-fm-top-tracks.csv')
-    df = lfmd.get_top_artists(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+        download_remaining(config)
+
+
+def download_remaining(config):
+    df = lfmd.get_top_artists(config.last_fm_username, config.last_fm_api_key,
+                              config.last_fm_limit,
                               config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-top-artists.csv')
-    df = lfmd.get_top_albums(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+    df = lfmd.get_top_albums(config.last_fm_username, config.last_fm_api_key,
+                             config.last_fm_limit,
                              config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-top-albums.csv')
-    df = lfmd.get_all_scrobbles(config.last_fm_username, config.last_fm_api_key, config.last_fm_limit,
+    df = lfmd.get_all_scrobbles(config.last_fm_username, config.last_fm_api_key,
+                                config.last_fm_limit,
                                 config.last_fm_extended, config.last_fm_page)
     lfmd.write_csv(df, 'data\last-fm-all-songs.csv')
 
